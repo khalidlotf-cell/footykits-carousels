@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Footykits — Carousel Generator</title>
+  <link rel="stylesheet" href="/static/css/style.css" />
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <div class="header-inner">
+      <div class="logo">
+        <span class="logo-icon">⚽</span>
+        <span class="logo-text">Footykits <span class="logo-sub">Carousel</span></span>
+      </div>
+      <div class="stats-bar" id="statsBar">
+        <div class="stat-pill">
+          <span class="stat-label">Images couverture</span>
+          <span class="stat-val" id="statCat1">—</span>
+        </div>
+        <div class="stat-pill">
+          <span class="stat-label">Images stock</span>
+          <span class="stat-val" id="statCat2">—</span>
+        </div>
+        <div class="stat-pill">
+          <span class="stat-label">Aujourd'hui</span>
+          <span class="stat-val" id="statToday">—</span>
+        </div>
+        <div class="stat-pill">
+          <span class="stat-label">Total générés</span>
+          <span class="stat-val" id="statTotal">—</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- NAVIGATION TABS -->
+  <nav class="tabs">
+    <button class="tab active" data-tab="upload">📤 Images</button>
+    <button class="tab" data-tab="generate">🎲 Générer</button>
+    <button class="tab" data-tab="carousels">📦 Carrousels</button>
+  </nav>
+
+  <main>
+
+    <!-- ═══════════════════════════════════════════════════════
+         TAB 1 — UPLOAD
+    ══════════════════════════════════════════════════════════ -->
+    <section id="tab-upload" class="tab-content active">
+      <div class="two-col">
+
+        <!-- CATEGORY 1 -->
+        <div class="card">
+          <div class="card-header">
+            <h2>🖼️ Images Couverture</h2>
+            <span class="badge badge-blue" id="badgeCat1">0</span>
+          </div>
+          <p class="card-desc">La 1ère image de chaque carrousel. Ajoute tes plus belles photos.</p>
+
+          <div class="drop-zone" id="drop1">
+            <div class="drop-icon">📁</div>
+            <p>Glisse tes images ici</p>
+            <span>ou</span>
+            <label class="btn btn-outline">
+              Choisir des fichiers
+              <input type="file" multiple accept="image/*" onchange="uploadFiles(this.files, 'category1')" hidden />
+            </label>
+          </div>
+
+          <div class="progress-bar" id="progress1" style="display:none">
+            <div class="progress-fill" id="progressFill1"></div>
+          </div>
+
+          <div class="image-grid" id="grid1"></div>
+        </div>
+
+        <!-- CATEGORY 2 -->
+        <div class="card">
+          <div class="card-header">
+            <h2>📸 Images Stock</h2>
+            <span class="badge badge-green" id="badgeCat2">0</span>
+          </div>
+          <p class="card-desc">Le stock d'images parmi lesquelles 7 sont piochées aléatoirement.</p>
+
+          <div class="drop-zone" id="drop2">
+            <div class="drop-icon">📁</div>
+            <p>Glisse tes images ici</p>
+            <span>ou</span>
+            <label class="btn btn-outline">
+              Choisir des fichiers
+              <input type="file" multiple accept="image/*" onchange="uploadFiles(this.files, 'category2')" hidden />
+            </label>
+          </div>
+
+          <div class="progress-bar" id="progress2" style="display:none">
+            <div class="progress-fill" id="progressFill2"></div>
+          </div>
+
+          <div class="image-grid" id="grid2"></div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════
+         TAB 2 — GENERATE
+    ══════════════════════════════════════════════════════════ -->
+    <section id="tab-generate" class="tab-content">
+      <div class="generate-center">
+
+        <div class="card generate-card">
+          <h2>🎲 Générer des Carrousels</h2>
+          <p class="card-desc">
+            Chaque carrousel = <strong>1 image couverture</strong> + <strong>7 images stock</strong> choisies aléatoirement<br>
+            + une description + les hashtags générés automatiquement.
+          </p>
+
+          <div class="generate-info" id="generateInfo">
+            <div class="info-row">
+              <span>📁 Images couverture</span>
+              <span id="infoC1" class="info-val">—</span>
+            </div>
+            <div class="info-row">
+              <span>📸 Images stock</span>
+              <span id="infoC2" class="info-val">—</span>
+            </div>
+            <div class="info-row">
+              <span>⏰ Génération auto</span>
+              <span class="info-val">8h · 10h · 12h · 14h · 16h</span>
+            </div>
+          </div>
+
+          <div id="readyAlert" class="alert alert-warning" style="display:none">
+            ⚠️ Il faut au moins <strong>1 image couverture</strong> et <strong>7 images stock</strong> pour générer.
+          </div>
+
+          <div class="generate-buttons">
+            <button class="btn btn-primary btn-large" onclick="generateOne()">
+              <span>🎲</span> Générer 1 carrousel
+            </button>
+            <button class="btn btn-success btn-large" onclick="generateFive()">
+              <span>⚡</span> Générer 5 carrousels
+            </button>
+          </div>
+
+          <div id="generateResult" class="generate-result" style="display:none"></div>
+        </div>
+
+        <!-- Latest carousels preview -->
+        <div id="latestCarousels" class="latest-section" style="display:none">
+          <h3>Derniers générés</h3>
+          <div id="latestGrid" class="carousel-grid"></div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════
+         TAB 3 — CAROUSELS
+    ══════════════════════════════════════════════════════════ -->
+    <section id="tab-carousels" class="tab-content">
+      <div class="carousels-header">
+        <h2>📦 Carrousels générés</h2>
+        <button class="btn btn-outline btn-sm" onclick="loadCarousels()">🔄 Actualiser</button>
+      </div>
+
+      <div id="carouselsList" class="carousel-list"></div>
+      <div id="noCarousels" class="empty-state" style="display:none">
+        <p>Aucun carrousel généré pour l'instant.</p>
+        <p>Va dans l'onglet <strong>Générer</strong> pour créer tes premiers carrousels.</p>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- TOAST NOTIFICATION -->
+  <div id="toast" class="toast"></div>
+
+  <!-- IMAGE MODAL -->
+  <div id="modal" class="modal" onclick="closeModal()">
+    <div class="modal-inner" onclick="event.stopPropagation()">
+      <button class="modal-close" onclick="closeModal()">✕</button>
+      <img id="modalImg" src="" alt="" />
+    </div>
+  </div>
+
+  <script src="/static/js/app.js"></script>
+</body>
+</html>
