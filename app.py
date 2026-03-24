@@ -76,21 +76,23 @@ def public_url(path):
 
 # ─── Génération carrousel ──────────────────────────────────────────────────────
 
-def generate_carousel():
+def generate_carousel(video_type='sans_flocage'):
     try:
         sb = get_supabase()
         cat1 = list_images('category1')
-        cat2 = list_images('category2')
+        stock_category = 'category3' if video_type == 'flocage' else 'category2'
+        cat_stock = list_images(stock_category)
 
         if not cat1:
             print("Catégorie 1 vide, génération annulée.")
             return None
-        if len(cat2) < 7:
-            print(f"Catégorie 2 insuffisante ({len(cat2)}/7), génération annulée.")
+        if len(cat_stock) < 7:
+            label = "Flocage" if video_type == 'flocage' else "Stock"
+            print(f"Catégorie {label} insuffisante ({len(cat_stock)}/7), génération annulée.")
             return None
 
         cover = random.choice(cat1)
-        stock = random.sample(cat2, 7)
+        stock = random.sample(cat_stock, 7)
         description = random.choice(DESCRIPTIONS)
 
         carousel_id = str(uuid.uuid4())[:8]
@@ -98,7 +100,7 @@ def generate_carousel():
         carousel_name = f"carousel_{timestamp.strftime('%Y%m%d_%H%M%S')}_{carousel_id}"
 
         cover_path = f"category1/{cover}"
-        stock_paths = [f"category2/{img}" for img in stock]
+        stock_paths = [f"{stock_category}/{img}" for img in stock]
         all_paths = [cover_path] + stock_paths
 
         carousel_data = {
@@ -111,10 +113,11 @@ def generate_carousel():
             'description': description,
             'hashtags': HASHTAGS,
             'all_paths': all_paths,
+            'video_type': video_type,
         }
 
         sb.table('carousels').insert(carousel_data).execute()
-        print(f"Carrousel généré : {carousel_name}")
+        print(f"Carrousel généré ({video_type}) : {carousel_name}")
         return carousel_data
 
     except Exception as e:
@@ -145,7 +148,7 @@ def upload():
         return jsonify({'error': 'Aucun fichier'}), 400
 
     category = request.form.get('category', 'category1')
-    if category not in ['category1', 'category2']:
+    if category not in ['category1', 'category2', 'category3']:
         return jsonify({'error': 'Catégorie invalide'}), 400
 
     files = request.files.getlist('files')
@@ -178,7 +181,7 @@ def upload():
 
 @app.route('/api/images/<category>')
 def get_images(category):
-    if category not in ['category1', 'category2']:
+    if category not in ['category1', 'category2', 'category3']:
         return jsonify({'error': 'Catégorie invalide'}), 400
 
     names = list_images(category)
@@ -192,7 +195,7 @@ def delete_image():
     category = data.get('category')
     filename = data.get('filename')
 
-    if category not in ['category1', 'category2']:
+    if category not in ['category1', 'category2', 'category3']:
         return jsonify({'error': 'Catégorie invalide'}), 400
 
     try:
@@ -205,24 +208,35 @@ def delete_image():
 
 @app.route('/api/generate', methods=['POST'])
 def generate_one():
-    carousel = generate_carousel()
+    data = request.get_json() or {}
+    video_type = data.get('video_type', 'sans_flocage')
+    if video_type not in ['flocage', 'sans_flocage']:
+        video_type = 'sans_flocage'
+
+    carousel = generate_carousel(video_type)
     if carousel:
-        # Add preview URL
         carousel['preview_url'] = public_url(carousel['cover'])
         return jsonify({'success': True, 'carousel': carousel})
 
     cat1 = len(list_images('category1'))
-    cat2 = len(list_images('category2'))
+    stock_category = 'category3' if video_type == 'flocage' else 'category2'
+    cat_stock = len(list_images(stock_category))
+    label = "Flocage" if video_type == 'flocage' else "Stock"
     if cat1 == 0:
         return jsonify({'error': 'Ajoutez au moins 1 image en Catégorie 1'}), 400
-    return jsonify({'error': f'Catégorie 2 : {cat2}/7 images minimum requises'}), 400
+    return jsonify({'error': f'Catégorie {label} : {cat_stock}/7 images minimum requises'}), 400
 
 
 @app.route('/api/generate-five', methods=['POST'])
 def generate_five():
+    data = request.get_json() or {}
+    video_type = data.get('video_type', 'sans_flocage')
+    if video_type not in ['flocage', 'sans_flocage']:
+        video_type = 'sans_flocage'
+
     generated = []
     for _ in range(5):
-        c = generate_carousel()
+        c = generate_carousel(video_type)
         if c:
             c['preview_url'] = public_url(c['cover'])
             generated.append(c)
@@ -233,10 +247,12 @@ def generate_five():
         return jsonify({'success': True, 'count': len(generated), 'carousels': generated})
 
     cat1 = len(list_images('category1'))
-    cat2 = len(list_images('category2'))
+    stock_category = 'category3' if video_type == 'flocage' else 'category2'
+    cat_stock = len(list_images(stock_category))
+    label = "Flocage" if video_type == 'flocage' else "Stock"
     if cat1 == 0:
         return jsonify({'error': 'Catégorie 1 vide'}), 400
-    return jsonify({'error': f'Catégorie 2 : {cat2}/7 images minimum'}), 400
+    return jsonify({'error': f'Catégorie {label} : {cat_stock}/7 images minimum'}), 400
 
 
 @app.route('/api/trigger', methods=['GET', 'POST'])
@@ -322,6 +338,7 @@ def get_stats():
     try:
         cat1 = len(list_images('category1'))
         cat2 = len(list_images('category2'))
+        cat3 = len(list_images('category3'))
 
         sb = get_supabase()
         total_res = sb.table('carousels').select('id', count='exact').execute()
@@ -334,15 +351,17 @@ def get_stats():
         return jsonify({
             'category1': cat1,
             'category2': cat2,
+            'category3': cat3,
             'total_generated': total,
             'today_generated': today,
-            'ready': cat1 >= 1 and cat2 >= 7,
+            'ready_sans_flocage': cat1 >= 1 and cat2 >= 7,
+            'ready_flocage': cat1 >= 1 and cat3 >= 7,
         })
     except Exception as e:
         return jsonify({
-            'category1': 0, 'category2': 0,
+            'category1': 0, 'category2': 0, 'category3': 0,
             'total_generated': 0, 'today_generated': 0,
-            'ready': False, 'error': str(e)
+            'ready_sans_flocage': False, 'ready_flocage': False, 'error': str(e)
         })
 
 

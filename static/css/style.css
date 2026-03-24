@@ -148,8 +148,20 @@ main {
   gap: 20px;
 }
 
+/* ── Three Column Layout ──────────────────────────────────── */
+.three-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 20px;
+}
+
+@media (max-width: 1024px) {
+  .three-col { grid-template-columns: 1fr 1fr; }
+}
+
 @media (max-width: 768px) {
   .two-col { grid-template-columns: 1fr; }
+  .three-col { grid-template-columns: 1fr; }
   .stats-bar { display: none; }
 }
 
@@ -168,6 +180,7 @@ main {
 
 .badge-blue { background: rgba(59,130,246,0.15); color: var(--blue); border: 1px solid rgba(59,130,246,0.3); }
 .badge-green { background: rgba(34,197,94,0.15); color: var(--green); border: 1px solid rgba(34,197,94,0.3); }
+.badge-orange { background: rgba(249,115,22,0.15); color: #f97316; border: 1px solid rgba(249,115,22,0.3); }
 
 /* ── Buttons ──────────────────────────────────────────────── */
 .btn {
@@ -305,6 +318,74 @@ main {
 }
 
 .img-thumb:hover .del-btn { display: flex; }
+
+/* ── Type Tags (on card headers) ─────────────────────────── */
+.type-tag {
+  display: inline-block;
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  vertical-align: middle;
+  margin-left: 6px;
+}
+.type-tag-green { background: rgba(34,197,94,0.15); color: var(--green); border: 1px solid rgba(34,197,94,0.3); }
+.type-tag-orange { background: rgba(249,115,22,0.15); color: #f97316; border: 1px solid rgba(249,115,22,0.3); }
+
+/* ── Type Selector ────────────────────────────────────────── */
+.type-selector {
+  margin: 20px 0 0;
+}
+
+.type-selector-label {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+  font-weight: 500;
+}
+
+.type-toggle {
+  display: flex;
+  gap: 8px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 4px;
+}
+
+.type-btn {
+  flex: 1;
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.type-btn:hover { color: var(--text); }
+
+.type-btn.active {
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  border: 1px solid var(--border);
+}
+
+.type-btn[data-type="flocage"].active {
+  color: #f97316;
+  border-color: rgba(249,115,22,0.4);
+}
+
+.type-btn[data-type="sans_flocage"].active {
+  color: var(--green);
+  border-color: rgba(34,197,94,0.4);
+}
 
 /* ── Generate Tab ─────────────────────────────────────────── */
 .generate-center {

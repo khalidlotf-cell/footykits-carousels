@@ -20,6 +20,16 @@ document.querySelectorAll('.tab').forEach(btn => {
   });
 });
 
+// ── Type selector ─────────────────────────────────────────────
+let selectedType = 'sans_flocage';
+
+function selectType(type) {
+  selectedType = type;
+  document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector(`.type-btn[data-type="${type}"]`).classList.add('active');
+  updateGenerateInfo();
+}
+
 // ── Stats ─────────────────────────────────────────────────────
 async function loadStats() {
   try {
@@ -27,10 +37,12 @@ async function loadStats() {
     const d = await r.json();
     document.getElementById('statCat1').textContent = d.category1;
     document.getElementById('statCat2').textContent = d.category2;
+    document.getElementById('statCat3').textContent = d.category3;
     document.getElementById('statToday').textContent = d.today_generated;
     document.getElementById('statTotal').textContent = d.total_generated;
     document.getElementById('badgeCat1').textContent = d.category1;
     document.getElementById('badgeCat2').textContent = d.category2;
+    document.getElementById('badgeCat3').textContent = d.category3;
     return d;
   } catch(e) { return null; }
 }
@@ -39,15 +51,23 @@ async function updateGenerateInfo() {
   const d = await loadStats();
   if (!d) return;
   document.getElementById('infoC1').textContent = d.category1 + ' image(s)';
-  document.getElementById('infoC2').textContent = d.category2 + ' image(s)';
-  document.getElementById('readyAlert').style.display = d.ready ? 'none' : 'block';
+
+  if (selectedType === 'flocage') {
+    document.getElementById('infoStockLabel').textContent = '🎽 Images flocage';
+    document.getElementById('infoC2').textContent = d.category3 + ' image(s)';
+    document.getElementById('readyAlert').style.display = d.ready_flocage ? 'none' : 'block';
+  } else {
+    document.getElementById('infoStockLabel').textContent = '📸 Images stock';
+    document.getElementById('infoC2').textContent = d.category2 + ' image(s)';
+    document.getElementById('readyAlert').style.display = d.ready_sans_flocage ? 'none' : 'block';
+  }
 }
 
 // ── Upload ────────────────────────────────────────────────────
 async function uploadFiles(files, category) {
   if (!files || files.length === 0) return;
 
-  const num = category === 'category1' ? '1' : '2';
+  const num = category === 'category1' ? '1' : category === 'category2' ? '2' : '3';
   const progressBar = document.getElementById(`progress${num}`);
   const progressFill = document.getElementById(`progressFill${num}`);
 
@@ -95,7 +115,7 @@ async function loadImages(category) {
   try {
     const r = await fetch(`/api/images/${category}`);
     const d = await r.json();
-    const num = category === 'category1' ? '1' : '2';
+    const num = category === 'category1' ? '1' : category === 'category2' ? '2' : '3';
     const grid = document.getElementById(`grid${num}`);
     grid.innerHTML = '';
 
@@ -140,7 +160,11 @@ async function generateOne() {
   btn.disabled = true;
   btn.innerHTML = '<span class="spinner"></span> Génération...';
   try {
-    const r = await fetch('/api/generate', { method: 'POST' });
+    const r = await fetch('/api/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ video_type: selectedType })
+    });
     const d = await r.json();
     btn.disabled = false;
     btn.innerHTML = '<span>🎲</span> Générer 1 carrousel';
@@ -163,7 +187,11 @@ async function generateFive() {
   btn.disabled = true;
   btn.innerHTML = '<span class="spinner"></span> Génération...';
   try {
-    const r = await fetch('/api/generate-five', { method: 'POST' });
+    const r = await fetch('/api/generate-five', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ video_type: selectedType })
+    });
     const d = await r.json();
     btn.disabled = false;
     btn.innerHTML = '<span>⚡</span> Générer 5 carrousels';
@@ -313,7 +341,9 @@ function formatDate(iso) {
 (async function init() {
   setupDrop('drop1', 'category1');
   setupDrop('drop2', 'category2');
+  setupDrop('drop3', 'category3');
   await loadStats();
   await loadImages('category1');
   await loadImages('category2');
+  await loadImages('category3');
 })();

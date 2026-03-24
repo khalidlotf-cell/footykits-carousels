@@ -25,6 +25,10 @@
           <span class="stat-val" id="statCat2">—</span>
         </div>
         <div class="stat-pill">
+          <span class="stat-label">Images flocage</span>
+          <span class="stat-val" id="statCat3">—</span>
+        </div>
+        <div class="stat-pill">
           <span class="stat-label">Aujourd'hui</span>
           <span class="stat-val" id="statToday">—</span>
         </div>
@@ -49,7 +53,7 @@
          TAB 1 — UPLOAD
     ══════════════════════════════════════════════════════════ -->
     <section id="tab-upload" class="tab-content active">
-      <div class="two-col">
+      <div class="three-col">
 
         <!-- CATEGORY 1 -->
         <div class="card">
@@ -79,10 +83,10 @@
         <!-- CATEGORY 2 -->
         <div class="card">
           <div class="card-header">
-            <h2>📸 Images Stock</h2>
+            <h2>📸 Images Stock <span class="type-tag type-tag-green">Sans flocage</span></h2>
             <span class="badge badge-green" id="badgeCat2">0</span>
           </div>
-          <p class="card-desc">Le stock d'images parmi lesquelles 7 sont piochées aléatoirement.</p>
+          <p class="card-desc">Maillots sans flocage. 7 images piochées aléatoirement par carrousel.</p>
 
           <div class="drop-zone" id="drop2">
             <div class="drop-icon">📁</div>
@@ -101,6 +105,31 @@
           <div class="image-grid" id="grid2"></div>
         </div>
 
+        <!-- CATEGORY 3 -->
+        <div class="card">
+          <div class="card-header">
+            <h2>🎽 Images Flocage <span class="type-tag type-tag-orange">Avec flocage</span></h2>
+            <span class="badge badge-orange" id="badgeCat3">0</span>
+          </div>
+          <p class="card-desc">Maillots avec flocage. 7 images piochées aléatoirement par carrousel.</p>
+
+          <div class="drop-zone" id="drop3">
+            <div class="drop-icon">📁</div>
+            <p>Glisse tes images ici</p>
+            <span>ou</span>
+            <label class="btn btn-outline">
+              Choisir des fichiers
+              <input type="file" multiple accept="image/*" onchange="uploadFiles(this.files, 'category3')" hidden />
+            </label>
+          </div>
+
+          <div class="progress-bar" id="progress3" style="display:none">
+            <div class="progress-fill" id="progressFill3"></div>
+          </div>
+
+          <div class="image-grid" id="grid3"></div>
+        </div>
+
       </div>
     </section>
 
@@ -117,13 +146,26 @@
             + une description + les hashtags générés automatiquement.
           </p>
 
+          <!-- TYPE SELECTOR -->
+          <div class="type-selector">
+            <p class="type-selector-label">Type de carrousel :</p>
+            <div class="type-toggle">
+              <button class="type-btn active" data-type="sans_flocage" onclick="selectType('sans_flocage')">
+                📸 Sans flocage
+              </button>
+              <button class="type-btn" data-type="flocage" onclick="selectType('flocage')">
+                🎽 Avec flocage
+              </button>
+            </div>
+          </div>
+
           <div class="generate-info" id="generateInfo">
             <div class="info-row">
               <span>📁 Images couverture</span>
               <span id="infoC1" class="info-val">—</span>
             </div>
-            <div class="info-row">
-              <span>📸 Images stock</span>
+            <div class="info-row" id="infoStockRow">
+              <span id="infoStockLabel">📸 Images stock</span>
               <span id="infoC2" class="info-val">—</span>
             </div>
             <div class="info-row">
@@ -133,7 +175,7 @@
           </div>
 
           <div id="readyAlert" class="alert alert-warning" style="display:none">
-            ⚠️ Il faut au moins <strong>1 image couverture</strong> et <strong>7 images stock</strong> pour générer.
+            ⚠️ Il faut au moins <strong>1 image couverture</strong> et <strong>7 images</strong> dans la catégorie sélectionnée pour générer.
           </div>
 
           <div class="generate-buttons">
