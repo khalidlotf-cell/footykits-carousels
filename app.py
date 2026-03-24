@@ -113,7 +113,6 @@ def generate_carousel(video_type='sans_flocage'):
             'description': description,
             'hashtags': HASHTAGS,
             'all_paths': all_paths,
-            'video_type': video_type,
         }
 
         sb.table('carousels').insert(carousel_data).execute()
@@ -122,7 +121,7 @@ def generate_carousel(video_type='sans_flocage'):
 
     except Exception as e:
         print(f"Erreur génération : {e}")
-        return None
+        raise
 
 
 def auto_generate():
@@ -213,18 +212,21 @@ def generate_one():
     if video_type not in ['flocage', 'sans_flocage']:
         video_type = 'sans_flocage'
 
-    carousel = generate_carousel(video_type)
-    if carousel:
-        carousel['preview_url'] = public_url(carousel['cover'])
-        return jsonify({'success': True, 'carousel': carousel})
-
-    cat1 = len(list_images('category1'))
-    stock_category = 'category3' if video_type == 'flocage' else 'category2'
-    cat_stock = len(list_images(stock_category))
-    label = "Flocage" if video_type == 'flocage' else "Stock"
-    if cat1 == 0:
-        return jsonify({'error': 'Ajoutez au moins 1 image en Catégorie 1'}), 400
-    return jsonify({'error': f'Catégorie {label} : {cat_stock}/7 images minimum requises'}), 400
+    try:
+        carousel = generate_carousel(video_type)
+        if carousel:
+            carousel['preview_url'] = public_url(carousel['cover'])
+            return jsonify({'success': True, 'carousel': carousel})
+        # Only reaches here if images insufficient
+        cat1 = len(list_images('category1'))
+        stock_category = 'category3' if video_type == 'flocage' else 'category2'
+        cat_stock = len(list_images(stock_category))
+        label = "Flocage" if video_type == 'flocage' else "Stock"
+        if cat1 == 0:
+            return jsonify({'error': 'Ajoutez au moins 1 image en Catégorie 1'}), 400
+        return jsonify({'error': f'Catégorie {label} : {cat_stock}/7 images minimum requises'}), 400
+    except Exception as e:
+        return jsonify({'error': f'Erreur : {str(e)}'}), 500
 
 
 @app.route('/api/generate-five', methods=['POST'])
@@ -234,25 +236,28 @@ def generate_five():
     if video_type not in ['flocage', 'sans_flocage']:
         video_type = 'sans_flocage'
 
-    generated = []
-    for _ in range(5):
-        c = generate_carousel(video_type)
-        if c:
-            c['preview_url'] = public_url(c['cover'])
-            generated.append(c)
-        else:
-            break
+    try:
+        generated = []
+        for _ in range(5):
+            c = generate_carousel(video_type)
+            if c:
+                c['preview_url'] = public_url(c['cover'])
+                generated.append(c)
+            else:
+                break
 
-    if generated:
-        return jsonify({'success': True, 'count': len(generated), 'carousels': generated})
+        if generated:
+            return jsonify({'success': True, 'count': len(generated), 'carousels': generated})
 
-    cat1 = len(list_images('category1'))
-    stock_category = 'category3' if video_type == 'flocage' else 'category2'
-    cat_stock = len(list_images(stock_category))
-    label = "Flocage" if video_type == 'flocage' else "Stock"
-    if cat1 == 0:
-        return jsonify({'error': 'Catégorie 1 vide'}), 400
-    return jsonify({'error': f'Catégorie {label} : {cat_stock}/7 images minimum'}), 400
+        cat1 = len(list_images('category1'))
+        stock_category = 'category3' if video_type == 'flocage' else 'category2'
+        cat_stock = len(list_images(stock_category))
+        label = "Flocage" if video_type == 'flocage' else "Stock"
+        if cat1 == 0:
+            return jsonify({'error': 'Catégorie 1 vide'}), 400
+        return jsonify({'error': f'Catégorie {label} : {cat_stock}/7 images minimum'}), 400
+    except Exception as e:
+        return jsonify({'error': f'Erreur : {str(e)}'}), 500
 
 
 @app.route('/api/trigger', methods=['GET', 'POST'])
