@@ -38,11 +38,13 @@ async function loadStats() {
     document.getElementById('statCat1').textContent = d.category1;
     document.getElementById('statCat2').textContent = d.category2;
     document.getElementById('statCat3').textContent = d.category3;
+    document.getElementById('statCat4').textContent = d.category4;
     document.getElementById('statToday').textContent = d.today_generated;
     document.getElementById('statTotal').textContent = d.total_generated;
     document.getElementById('badgeCat1').textContent = d.category1;
     document.getElementById('badgeCat2').textContent = d.category2;
     document.getElementById('badgeCat3').textContent = d.category3;
+    document.getElementById('badgeCat4').textContent = d.category4;
     return d;
   } catch(e) { return null; }
 }
@@ -50,13 +52,16 @@ async function loadStats() {
 async function updateGenerateInfo() {
   const d = await loadStats();
   if (!d) return;
-  document.getElementById('infoC1').textContent = d.category1 + ' image(s)';
+  document.getElementById('infoC4').textContent = d.category4 + ' image(s)';
 
   if (selectedType === 'flocage') {
+    document.getElementById('infoCoverRow').style.display = 'none';
     document.getElementById('infoStockLabel').textContent = '🎽 Images flocage';
     document.getElementById('infoC2').textContent = d.category3 + ' image(s)';
     document.getElementById('readyAlert').style.display = d.ready_flocage ? 'none' : 'block';
   } else {
+    document.getElementById('infoCoverRow').style.display = '';
+    document.getElementById('infoC1').textContent = d.category1 + ' image(s)';
     document.getElementById('infoStockLabel').textContent = '📸 Images stock';
     document.getElementById('infoC2').textContent = d.category2 + ' image(s)';
     document.getElementById('readyAlert').style.display = d.ready_sans_flocage ? 'none' : 'block';
@@ -67,7 +72,7 @@ async function updateGenerateInfo() {
 async function uploadFiles(files, category) {
   if (!files || files.length === 0) return;
 
-  const num = category === 'category1' ? '1' : category === 'category2' ? '2' : '3';
+  const num = category === 'category1' ? '1' : category === 'category2' ? '2' : category === 'category3' ? '3' : '4';
   const progressBar = document.getElementById(`progress${num}`);
   const progressFill = document.getElementById(`progressFill${num}`);
 
@@ -115,7 +120,7 @@ async function loadImages(category) {
   try {
     const r = await fetch(`/api/images/${category}`);
     const d = await r.json();
-    const num = category === 'category1' ? '1' : category === 'category2' ? '2' : '3';
+    const num = category === 'category1' ? '1' : category === 'category2' ? '2' : category === 'category3' ? '3' : '4';
     const grid = document.getElementById(`grid${num}`);
     grid.innerHTML = '';
 
@@ -342,8 +347,10 @@ function formatDate(iso) {
   setupDrop('drop1', 'category1');
   setupDrop('drop2', 'category2');
   setupDrop('drop3', 'category3');
+  setupDrop('drop4', 'category4');
   await loadStats();
   await loadImages('category1');
   await loadImages('category2');
   await loadImages('category3');
+  await loadImages('category4');
 })();

@@ -29,6 +29,10 @@
           <span class="stat-val" id="statCat3">—</span>
         </div>
         <div class="stat-pill">
+          <span class="stat-label">Image finale</span>
+          <span class="stat-val" id="statCat4">—</span>
+        </div>
+        <div class="stat-pill">
           <span class="stat-label">Aujourd'hui</span>
           <span class="stat-val" id="statToday">—</span>
         </div>
@@ -53,7 +57,7 @@
          TAB 1 — UPLOAD
     ══════════════════════════════════════════════════════════ -->
     <section id="tab-upload" class="tab-content active">
-      <div class="three-col">
+      <div class="four-col">
 
         <!-- CATEGORY 1 -->
         <div class="card">
@@ -61,7 +65,7 @@
             <h2>🖼️ Images Couverture</h2>
             <span class="badge badge-blue" id="badgeCat1">0</span>
           </div>
-          <p class="card-desc">La 1ère image de chaque carrousel. Ajoute tes plus belles photos.</p>
+          <p class="card-desc">La 1ère image des carrousels <strong>sans flocage</strong> uniquement.</p>
 
           <div class="drop-zone" id="drop1">
             <div class="drop-icon">📁</div>
@@ -130,6 +134,31 @@
           <div class="image-grid" id="grid3"></div>
         </div>
 
+        <!-- CATEGORY 4 -->
+        <div class="card">
+          <div class="card-header">
+            <h2>🏁 Image Finale</h2>
+            <span class="badge badge-purple" id="badgeCat4">0</span>
+          </div>
+          <p class="card-desc">Dernière image de chaque carrousel (tous types). 1 image piochée aléatoirement.</p>
+
+          <div class="drop-zone" id="drop4">
+            <div class="drop-icon">📁</div>
+            <p>Glisse tes images ici</p>
+            <span>ou</span>
+            <label class="btn btn-outline">
+              Choisir des fichiers
+              <input type="file" multiple accept="image/*" onchange="uploadFiles(this.files, 'category4')" hidden />
+            </label>
+          </div>
+
+          <div class="progress-bar" id="progress4" style="display:none">
+            <div class="progress-fill" id="progressFill4"></div>
+          </div>
+
+          <div class="image-grid" id="grid4"></div>
+        </div>
+
       </div>
     </section>
 
@@ -142,7 +171,8 @@
         <div class="card generate-card">
           <h2>🎲 Générer des Carrousels</h2>
           <p class="card-desc">
-            Chaque carrousel = <strong>1 image couverture</strong> + <strong>7 images stock</strong> choisies aléatoirement<br>
+            <strong>Sans flocage :</strong> 1 couverture + 7 images stock + 1 image finale = 9 slides<br>
+            <strong>Avec flocage :</strong> 7 images flocage + 1 image finale = 8 slides<br>
             + une description + les hashtags générés automatiquement.
           </p>
 
@@ -160,13 +190,17 @@
           </div>
 
           <div class="generate-info" id="generateInfo">
-            <div class="info-row">
-              <span>📁 Images couverture</span>
+            <div class="info-row" id="infoCoverRow">
+              <span>🖼️ Images couverture</span>
               <span id="infoC1" class="info-val">—</span>
             </div>
             <div class="info-row" id="infoStockRow">
               <span id="infoStockLabel">📸 Images stock</span>
               <span id="infoC2" class="info-val">—</span>
+            </div>
+            <div class="info-row">
+              <span>🏁 Image finale</span>
+              <span id="infoC4" class="info-val">—</span>
             </div>
             <div class="info-row">
               <span>⏰ Génération auto</span>
@@ -175,7 +209,7 @@
           </div>
 
           <div id="readyAlert" class="alert alert-warning" style="display:none">
-            ⚠️ Il faut au moins <strong>1 image couverture</strong> et <strong>7 images</strong> dans la catégorie sélectionnée pour générer.
+            ⚠️ Images insuffisantes pour générer.
           </div>
 
           <div class="generate-buttons">
